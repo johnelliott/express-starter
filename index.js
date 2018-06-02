@@ -1,7 +1,7 @@
 require('dotenv').config()
-const debug = require('debug')('starter:server')
-const morgan = require('morgan')
+const debug = require('debug')('starter:index')
 const path = require('path')
+const morgan = require('morgan')
 const express = require('express')
 
 var app = express()
@@ -26,15 +26,7 @@ app.get('/', function (req, res, next) {
 
 // Not found handler
 app.use(function (req, res, next) {
-  return res.format({
-    'application/json': function () {
-      debug('rendering application/json error')
-      res.status(404).json({ error: { status: 404, statustext: 'not found' } })
-    },
-    'default': function () {
-      res.sendStatus(404)
-    }
-  })
+  res.sendStatus(404)
 })
 
 // Error handlers
@@ -44,16 +36,17 @@ app.use(function (err, req, res, next) {
     res.status(500)
   }
   if (app.get('env') === 'development') {
-    return res.format({
-      'application/json': function () {
-        res.json({ statusCode: res.statusCode, error: err })
-      },
-      'default': function () {
-        res.send(err.toString())
-      }
-    })
+    return res.send(err.toString())
   }
   res.end()
 })
+
+if (require.main === module) {
+  const host = process.env.HOST || 'localhost'
+  const port = process.env.PORT || 8080
+  app.listen(port, host, () => {
+    debug(`listening on ${host}:${port}`)
+  })
+}
 
 module.exports = app
