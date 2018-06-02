@@ -29,14 +29,13 @@ app.use(function (req, res, next) {
   res.sendStatus(404)
 })
 
-// Error handlers
+// Error handler
 app.use(function (err, req, res, next) {
-  debug('error handler', err)
-  if (!res.statusCode) {
-    res.status(500)
-  }
+  debug(err)
+  res.status(500)
   if (app.get('env') === 'development') {
-    return res.send(err.toString())
+    res.type('text/plain')
+    return res.send(err.stack)
   }
   res.end()
 })
